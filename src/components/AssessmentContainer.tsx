@@ -36,6 +36,7 @@ const AssessmentContainer = () => {
     fetchStudy(studyId, controller.signal)
       .then((data) => {
         if (cancelled) return;
+
         setState((prev) => ({
           ...prev,
           loading: false,
@@ -57,6 +58,8 @@ const AssessmentContainer = () => {
       })
       .catch((err) => {
         if (cancelled) return;
+        if (err?.name === "AbortError") return;
+
         setState((prev) => ({
           ...prev,
           loading: false,
@@ -66,6 +69,7 @@ const AssessmentContainer = () => {
 
     return () => {
       cancelled = true;
+      controller.abort();
     };
   }, [studyId, setState]);
 
