@@ -79,6 +79,7 @@ const AssessmentContainer = () => {
         }));
       });
     }, pollMs);
+    return () => clearInterval(id);
   }, [pollMs, studyId, setState]);
 
   return (
