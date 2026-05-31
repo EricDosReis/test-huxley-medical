@@ -64,6 +64,7 @@ const AssessmentContainer = () => {
       });
 
     return () => {
+      console.info("Aborting fetchStudy for", studyId);
       cancelled = true;
       controller.abort();
     };
@@ -78,7 +79,10 @@ const AssessmentContainer = () => {
         })
         .catch((err) => console.error("fetchEvents failed:", err));
     }, pollMs);
-    return () => clearInterval(id);
+    return () => {
+      console.info("Clearing event polling");
+      clearInterval(id);
+    };
   }, [pollMs, studyId, setStudy, setEvents]);
 
   return (
