@@ -71,10 +71,12 @@ const AssessmentContainer = () => {
 
   useEffect(() => {
     const id = setInterval(() => {
-      fetchEvents(studyId).then((newEvents) => {
-        setEvents(newEvents);
-        setStudy((prev) => ({ ...prev, lastFetchedAt: Date.now() }));
-      });
+      fetchEvents(studyId)
+        .then((newEvents) => {
+          setEvents(newEvents);
+          setStudy((prev) => ({ ...prev, lastFetchedAt: Date.now() }));
+        })
+        .catch((err) => console.error("fetchEvents failed:", err));
     }, pollMs);
     return () => clearInterval(id);
   }, [pollMs, studyId, setStudy, setEvents]);
