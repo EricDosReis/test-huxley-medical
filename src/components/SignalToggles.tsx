@@ -4,28 +4,25 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Typography from "@mui/material/Typography";
 import { useRecoilState, useRecoilValue } from "recoil";
 
-import { assessmentGlobalState } from "../store/globalStore";
+import { signalsAtom, visibilityAtom } from "../store/globalStore";
+import type { SignalKey } from "../types";
 
 const SignalToggles = () => {
-  const [state, setState] = useRecoilState(assessmentGlobalState);
-  const { signals, visibleSignals } = useRecoilValue(assessmentGlobalState);
+  const signals = useRecoilValue(signalsAtom);
+  const [visibility, setVisibility] = useRecoilState(visibilityAtom);
 
-  const handleToggle = (key: "hr" | "spo2" | "resp" | "position") => {
-    const nextVisible = { ...visibleSignals };
+  const handleToggle = (key: SignalKey) => {
+    setVisibility((prev) => {
+      const next = new Set(prev);
 
-    if (nextVisible[key]) {
-      // hide
-      nextVisible[key] = undefined;
-    } else if (signals[key]) {
-      nextVisible[key] = signals[key]
-        ? { ...signals[key]!, values: [...(signals[key]!.values || [])] }
-        : undefined;
-    }
+      if (next.has(key)) {
+        next.delete(key);
+      } else if (signals[key]) {
+        next.add(key);
+      }
 
-    setState((prev) => ({
-      ...prev,
-      visibleSignals: nextVisible,
-    }));
+      return next;
+    });
   };
 
   return (
@@ -37,7 +34,7 @@ const SignalToggles = () => {
       <FormControlLabel
         control={
           <Checkbox
-            checked={!!visibleSignals.hr}
+            checked={visibility.has("hr")}
             onChange={() => handleToggle("hr")}
           />
         }
@@ -46,7 +43,7 @@ const SignalToggles = () => {
       <FormControlLabel
         control={
           <Checkbox
-            checked={!!visibleSignals.spo2}
+            checked={visibility.has("spo2")}
             onChange={() => handleToggle("spo2")}
           />
         }
@@ -55,7 +52,7 @@ const SignalToggles = () => {
       <FormControlLabel
         control={
           <Checkbox
-            checked={!!visibleSignals.resp}
+            checked={visibility.has("resp")}
             onChange={() => handleToggle("resp")}
           />
         }
@@ -64,7 +61,7 @@ const SignalToggles = () => {
       <FormControlLabel
         control={
           <Checkbox
-            checked={!!visibleSignals.position}
+            checked={visibility.has("position")}
             onChange={() => handleToggle("position")}
           />
         }

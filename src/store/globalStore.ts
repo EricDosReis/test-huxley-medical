@@ -1,24 +1,82 @@
-import { atom } from "recoil";
+import { atom, selector } from "recoil";
 
-import { GlobalState } from "../types";
+import type {
+  ChartConfig,
+  Event,
+  SignalKey,
+  Signals,
+  StudyState,
+  WindowRange,
+} from "../types";
 
-export const assessmentGlobalState = atom<GlobalState>({
-  key: "assessmentGlobalState",
+export const studyAtom = atom<StudyState>({
+  key: "studyAtom",
   default: {
     studyId: "demo-study-001",
     loading: false,
     error: undefined,
-    signals: {},
-    visibleSignals: {},
-    events: [],
-    yMin: undefined,
-    yMax: undefined,
-    chartWidth: 1000,
-    chartHeight: 300,
-    autoScale: true,
     lastFetchedAt: undefined,
     pollMs: 2000,
-    currentStartSec: 0,
-    currentEndSec: 600,
+  },
+});
+
+export const signalsAtom = atom<Signals>({
+  key: "signalsAtom",
+  default: {},
+});
+
+export const visibilityAtom = atom<Set<SignalKey>>({
+  key: "visibilityAtom",
+  default: new Set<SignalKey>(["hr", "spo2", "resp", "position"]),
+});
+
+export const windowAtom = atom<WindowRange>({
+  key: "windowAtom",
+  default: { startSec: 0, endSec: 600 },
+});
+
+export const eventsAtom = atom<Event[]>({
+  key: "eventsAtom",
+  default: [],
+});
+
+export const chartConfigAtom = atom<ChartConfig>({
+  key: "chartConfigAtom",
+  default: { width: 1000, height: 300 },
+});
+
+export const visibleSignalsSelector = selector<Signals>({
+  key: "visibleSignalsSelector",
+  get: ({ get }) => {
+    const signals = get(signalsAtom);
+    const visibility = get(visibilityAtom);
+    const { startSec, endSec } = get(windowAtom);
+
+    const result: Signals = {};
+
+    visibility.forEach((key: SignalKey) => {
+      const series = signals[key];
+
+      if (!series) return;
+
+      if (!series.timestamps) {
+        result[key] = series;
+        return;
+      }
+
+      const timestamps = series.timestamps;
+      const { values } = series;
+      const startIndex = timestamps.findIndex((t: number) => t >= startSec);
+      const rawEndIndex = timestamps.findIndex((t: number) => t > endSec);
+      const endIndex = rawEndIndex === -1 ? timestamps.length : rawEndIndex;
+
+      result[key] = {
+        ...series,
+        timestamps: timestamps.slice(startIndex, endIndex),
+        values: values.slice(startIndex, endIndex),
+      };
+    });
+
+    return result;
   },
 });

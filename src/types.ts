@@ -29,20 +29,22 @@ export interface AssessmentStudyResponse {
   events: Event[];
 }
 
-export interface GlobalState {
+export type SignalKey = "hr" | "spo2" | "resp" | "position";
+
+export interface StudyState {
   studyId: string;
   loading: boolean;
   error?: string;
-  signals: Signals;
-  visibleSignals: Signals;
-  events: Event[];
-  yMin?: number;
-  yMax?: number;
-  chartWidth: number;
-  chartHeight: number;
-  autoScale: boolean;
   lastFetchedAt?: number;
   pollMs: number;
-  currentStartSec: number;
-  currentEndSec: number;
+}
+
+export interface WindowRange {
+  startSec: number;
+  endSec: number;
+}
+
+export interface ChartConfig {
+  width: number;
+  height: number;
 }
