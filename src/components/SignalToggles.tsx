@@ -7,6 +7,20 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { signalsAtom, visibilityAtom } from "../store/globalStore";
 import type { SignalKey } from "../types";
 
+interface SignalOption {
+  key: SignalKey;
+  label: string;
+}
+
+type SignalOptions = SignalOption[];
+
+const SIGNAL_OPTIONS: SignalOptions = [
+  { key: "hr", label: "HR" },
+  { key: "spo2", label: "SpO2" },
+  { key: "resp", label: "Resp" },
+  { key: "position", label: "Position" },
+];
+
 const SignalToggles = () => {
   const signals = useRecoilValue(signalsAtom);
   const [visibility, setVisibility] = useRecoilState(visibilityAtom);
@@ -31,42 +45,18 @@ const SignalToggles = () => {
         Visible signals:
       </Typography>
 
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={visibility.has("hr")}
-            onChange={() => handleToggle("hr")}
-          />
-        }
-        label="HR"
-      />
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={visibility.has("spo2")}
-            onChange={() => handleToggle("spo2")}
-          />
-        }
-        label="SpO2"
-      />
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={visibility.has("resp")}
-            onChange={() => handleToggle("resp")}
-          />
-        }
-        label="Resp"
-      />
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={visibility.has("position")}
-            onChange={() => handleToggle("position")}
-          />
-        }
-        label="Position"
-      />
+      {SIGNAL_OPTIONS.map(({ key, label }) => (
+        <FormControlLabel
+          key={key}
+          control={
+            <Checkbox
+              checked={visibility.has(key)}
+              onChange={() => handleToggle(key)}
+            />
+          }
+          label={label}
+        />
+      ))}
     </Stack>
   );
 };
