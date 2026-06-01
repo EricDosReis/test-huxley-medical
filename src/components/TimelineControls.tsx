@@ -1,56 +1,15 @@
 import Button from "@mui/joy/Button";
 import Stack from "@mui/joy/Stack";
 import Typography from "@mui/material/Typography";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 
-import { assessmentGlobalState } from "../store/globalStore";
-import { Signals } from "../types";
+import { windowAtom } from "../store/globalStore";
 
 const TimelineControls = () => {
-  const [state, setState] = useRecoilState(assessmentGlobalState);
-  const { signals, currentStartSec, currentEndSec } = useRecoilValue(
-    assessmentGlobalState,
-  );
+  const [{ startSec, endSec }, setWindow] = useRecoilState(windowAtom);
 
   const applyWindow = (windowSizeSeconds: number) => {
-    const newSignals: Signals = {};
-
-    const sliceSeries = (series?: {
-      timestamps?: number[];
-      values: number[];
-    }) => {
-      if (!series || !series.timestamps || series.timestamps.length === 0) {
-        return series;
-      }
-      const { timestamps, values } = series;
-      const startTs = timestamps[0];
-      const endTs = timestamps[timestamps.length - 1];
-      const newStart = startTs;
-      const newEnd = Math.min(endTs, newStart + windowSizeSeconds);
-
-      const startIndex = timestamps.findIndex((t) => t >= newStart);
-      const endIndex = timestamps.findIndex((t) => t > newEnd);
-      const lastIndex = endIndex === -1 ? timestamps.length : endIndex;
-
-      return {
-        ...series,
-        timestamps: timestamps.slice(startIndex, lastIndex),
-        values: values.slice(startIndex, lastIndex),
-      };
-    };
-
-    newSignals.hr = sliceSeries(signals.hr);
-    newSignals.spo2 = sliceSeries(signals.spo2);
-    newSignals.resp = sliceSeries(signals.resp);
-    newSignals.position = sliceSeries(signals.position);
-
-    setState((prev) => ({
-      ...prev,
-      signals: newSignals,
-      visibleSignals: newSignals,
-      currentStartSec: 0,
-      currentEndSec: windowSizeSeconds,
-    }));
+    setWindow({ startSec: 0, endSec: windowSizeSeconds });
   };
 
   return (
@@ -70,7 +29,7 @@ const TimelineControls = () => {
       </Button>
 
       <Typography sx={{ fontSize: 12, color: "#777", ml: 1 }}>
-        Current: {currentStartSec}s → {currentEndSec}s
+        Current: {startSec}s → {endSec}s
       </Typography>
     </Stack>
   );

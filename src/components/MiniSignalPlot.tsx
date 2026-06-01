@@ -64,8 +64,7 @@ const MiniSignalPlot = ({
       d += i === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`;
     }
     return { path: d, yMin: domainMin, yMax: domainMax };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [values, timestamps, innerW, innerH, Math.random()]);
+  }, [values, timestamps, innerW, innerH]);
 
   return (
     <Box sx={{ border: "1px solid #E0E0E0", borderRadius: 1, p: 1 }}>

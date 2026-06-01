@@ -3,61 +3,60 @@ import Stack from "@mui/joy/Stack";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useEffect } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+
 import { fetchEvents, fetchStudy } from "../api/mockApi";
-import { assessmentGlobalState } from "../store/globalStore";
+import {
+  chartConfigAtom,
+  eventsAtom,
+  signalsAtom,
+  studyAtom,
+  visibleSignalsSelector,
+  windowAtom,
+} from "../store/globalStore";
 import MiniSignalPlot from "./MiniSignalPlot";
 import SignalToggles from "./SignalToggles";
 import TimelineControls from "./TimelineControls";
 
 const AssessmentContainer = () => {
-  const [state, setState] = useRecoilState(assessmentGlobalState);
-  const {
-    studyId,
-    loading,
-    error,
-    visibleSignals,
-    chartWidth,
-    chartHeight,
-    events,
-    pollMs,
-  } = useRecoilValue(assessmentGlobalState);
+  const { studyId, loading, error, pollMs } = useRecoilValue(studyAtom);
+  const setStudy = useSetRecoilState(studyAtom);
+  const setSignals = useSetRecoilState(signalsAtom);
+  const setEvents = useSetRecoilState(eventsAtom);
+  const setWindow = useSetRecoilState(windowAtom);
+  const visibleSignals = useRecoilValue(visibleSignalsSelector);
+  const { width: chartWidth, height: chartHeight } =
+    useRecoilValue(chartConfigAtom);
+  const events = useRecoilValue(eventsAtom);
 
   useEffect(() => {
     let cancelled = false;
-    setState((prev) => ({
-      ...prev,
-      loading: true,
-      error: undefined,
-    }));
+    setStudy((prev) => ({ ...prev, loading: true, error: undefined }));
 
     const controller = new AbortController();
 
     fetchStudy(studyId, controller.signal)
       .then((data) => {
         if (cancelled) return;
-        setState((prev) => ({
+
+        setSignals(data.signals);
+        setEvents(data.events);
+        setWindow({
+          startSec: data.metadata.study_start,
+          endSec: data.metadata.study_end,
+        });
+        setStudy((prev) => ({
           ...prev,
           loading: false,
           error: undefined,
-          signals: data.signals,
-          visibleSignals: {
-            hr: data.signals.hr ? { ...data.signals.hr } : undefined,
-            spo2: data.signals.spo2 ? { ...data.signals.spo2 } : undefined,
-            resp: data.signals.resp ? { ...data.signals.resp } : undefined,
-            position: data.signals.position
-              ? { ...data.signals.position }
-              : undefined,
-          },
-          events: data.events,
           lastFetchedAt: Date.now(),
-          currentStartSec: data.metadata.study_start,
-          currentEndSec: data.metadata.study_end,
         }));
       })
       .catch((err) => {
         if (cancelled) return;
-        setState((prev) => ({
+        if (err?.name === "AbortError") return;
+
+        setStudy((prev) => ({
           ...prev,
           loading: false,
           error: err?.message || "Failed to load study",
@@ -65,21 +64,26 @@ const AssessmentContainer = () => {
       });
 
     return () => {
+      console.info("Aborting fetchStudy for", studyId);
       cancelled = true;
+      controller.abort();
     };
-  }, [studyId, setState]);
+  }, [studyId, setStudy, setSignals, setEvents, setWindow]);
 
   useEffect(() => {
     const id = setInterval(() => {
-      fetchEvents(studyId).then((newEvents) => {
-        setState((prev) => ({
-          ...prev,
-          events: newEvents,
-          lastFetchedAt: Date.now(),
-        }));
-      });
+      fetchEvents(studyId)
+        .then((newEvents) => {
+          setEvents(newEvents);
+          setStudy((prev) => ({ ...prev, lastFetchedAt: Date.now() }));
+        })
+        .catch((err) => console.error("fetchEvents failed:", err));
     }, pollMs);
-  }, [pollMs, studyId, setState]);
+    return () => {
+      console.info("Clearing event polling");
+      clearInterval(id);
+    };
+  }, [pollMs, studyId, setStudy, setEvents]);
 
   return (
     <Box sx={{ p: 2, height: "100%", boxSizing: "border-box" }}>
@@ -102,7 +106,7 @@ const AssessmentContainer = () => {
             size="sm"
             variant="outlined"
             onClick={() =>
-              setState((prev) => ({ ...prev, studyId: "demo-study-001" }))
+              setStudy((prev) => ({ ...prev, studyId: "demo-study-001" }))
             }
           >
             Study 1
@@ -111,7 +115,7 @@ const AssessmentContainer = () => {
             size="sm"
             variant="outlined"
             onClick={() =>
-              setState((prev) => ({ ...prev, studyId: "demo-study-002" }))
+              setStudy((prev) => ({ ...prev, studyId: "demo-study-002" }))
             }
           >
             Study 2
@@ -120,7 +124,7 @@ const AssessmentContainer = () => {
             size="sm"
             variant="outlined"
             onClick={() =>
-              setState((prev) => ({ ...prev, studyId: "demo-study-003" }))
+              setStudy((prev) => ({ ...prev, studyId: "demo-study-003" }))
             }
           >
             Study 3
