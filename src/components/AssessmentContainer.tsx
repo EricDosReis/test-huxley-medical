@@ -2,88 +2,30 @@ import Button from "@mui/joy/Button";
 import Stack from "@mui/joy/Stack";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { useEffect } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 
-import { fetchEvents, fetchStudy } from "../api/mockApi";
+import { useEventPoll } from "../hooks/useEventPoll";
+import { useStudyLoader } from "../hooks/useStudyLoader";
 import {
   chartConfigAtom,
   eventsAtom,
-  signalsAtom,
   studyAtom,
   visibleSignalsSelector,
-  windowAtom,
 } from "../store/globalStore";
 import MiniSignalPlot from "./MiniSignalPlot";
 import SignalToggles from "./SignalToggles";
 import TimelineControls from "./TimelineControls";
 
 const AssessmentContainer = () => {
-  const { studyId, loading, error, pollMs } = useRecoilValue(studyAtom);
+  useStudyLoader();
+  useEventPoll();
+
+  const { studyId, loading, error } = useRecoilValue(studyAtom);
   const setStudy = useSetRecoilState(studyAtom);
-  const setSignals = useSetRecoilState(signalsAtom);
-  const setEvents = useSetRecoilState(eventsAtom);
-  const setWindow = useSetRecoilState(windowAtom);
   const visibleSignals = useRecoilValue(visibleSignalsSelector);
   const { width: chartWidth, height: chartHeight } =
     useRecoilValue(chartConfigAtom);
   const events = useRecoilValue(eventsAtom);
-
-  useEffect(() => {
-    let cancelled = false;
-    setStudy((prev) => ({ ...prev, loading: true, error: undefined }));
-
-    const controller = new AbortController();
-
-    fetchStudy(studyId, controller.signal)
-      .then((data) => {
-        if (cancelled) return;
-
-        setSignals(data.signals);
-        setEvents(data.events);
-        setWindow({
-          startSec: data.metadata.study_start,
-          endSec: data.metadata.study_end,
-        });
-        setStudy((prev) => ({
-          ...prev,
-          loading: false,
-          error: undefined,
-          lastFetchedAt: Date.now(),
-        }));
-      })
-      .catch((err) => {
-        if (cancelled) return;
-        if (err?.name === "AbortError") return;
-
-        setStudy((prev) => ({
-          ...prev,
-          loading: false,
-          error: err?.message || "Failed to load study",
-        }));
-      });
-
-    return () => {
-      console.info("Aborting fetchStudy for", studyId);
-      cancelled = true;
-      controller.abort();
-    };
-  }, [studyId, setStudy, setSignals, setEvents, setWindow]);
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      fetchEvents(studyId)
-        .then((newEvents) => {
-          setEvents(newEvents);
-          setStudy((prev) => ({ ...prev, lastFetchedAt: Date.now() }));
-        })
-        .catch((err) => console.error("fetchEvents failed:", err));
-    }, pollMs);
-    return () => {
-      console.info("Clearing event polling");
-      clearInterval(id);
-    };
-  }, [pollMs, studyId, setStudy, setEvents]);
 
   return (
     <Box sx={{ p: 2, height: "100%", boxSizing: "border-box" }}>
