@@ -4,22 +4,9 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Typography from "@mui/material/Typography";
 import { useRecoilState, useRecoilValue } from "recoil";
 
+import { SIGNAL_OPTIONS } from "../constants";
 import { signalsAtom, visibilityAtom } from "../store/globalStore";
 import type { SignalKey } from "../types";
-
-interface SignalOption {
-  key: SignalKey;
-  label: string;
-}
-
-type SignalOptions = SignalOption[];
-
-const SIGNAL_OPTIONS: SignalOptions = [
-  { key: "hr", label: "HR" },
-  { key: "spo2", label: "SpO2" },
-  { key: "resp", label: "Resp" },
-  { key: "position", label: "Position" },
-];
 
 const SignalToggles = () => {
   const signals = useRecoilValue(signalsAtom);

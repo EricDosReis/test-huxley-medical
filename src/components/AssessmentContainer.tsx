@@ -4,6 +4,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 
+import { SIGNAL_PLOTS, STUDY_OPTIONS } from "../constants";
 import { useEventPoll } from "../hooks/useEventPoll";
 import { useStudyLoader } from "../hooks/useStudyLoader";
 import {
@@ -12,24 +13,10 @@ import {
   studyAtom,
   visibleSignalsSelector,
 } from "../store/globalStore";
-import type { SignalKey } from "../types";
 import { HRBaselineDisplay } from "./HRBaselineDisplay";
 import MiniSignalPlot from "./MiniSignalPlot";
 import SignalToggles from "./SignalToggles";
 import TimelineControls from "./TimelineControls";
-
-const STUDY_OPTIONS: { id: string; label: string }[] = [
-  { id: "demo-study-001", label: "Study 1" },
-  { id: "demo-study-002", label: "Study 2" },
-  { id: "demo-study-003", label: "Study 3" },
-];
-
-const SIGNAL_PLOTS: { key: SignalKey; title: string; color: string }[] = [
-  { key: "hr", title: "HR", color: "#1976d2" },
-  { key: "spo2", title: "SpO2", color: "#2e7d32" },
-  { key: "resp", title: "Resp", color: "#9c27b0" },
-  { key: "position", title: "Position", color: "#5d4037" },
-];
 
 const AssessmentContainer = () => {
   useStudyLoader();
