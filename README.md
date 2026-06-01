@@ -52,3 +52,37 @@ If you do this, please add a short note in your README explaining:
 - What you changed
 - Why you chose that approach
 - How it improves performance
+
+## Final Solution
+
+The final solution is documented in the [CHANGELOG](CHANGELOG.md) file. The solution
+was applied following a development workflow: problem/task -> code analysis ->
+development -> manual test (it could have been automated test) -> code review ->
+documentation -> merge to main branch (production). I followed trunk based
+development version control to manage the changes.
+
+The idea was to keep the change as minimal as possible, but consistently solving
+the issues, improving app performance and code readability.
+
+Six defects were eliminated without redesigning the architecture. These are the key changes:
+
+- The monolithic Recoil atom was split into six focused atoms and a derived selector, which in
+  turn fixed destructive zoom (signals are never mutated), duplicated visibility data
+  (the toggle set holds keys only)
+- Redundant subscriptions, and the broken memoization caused by an unstable dep array.
+- The race condition on rapid study switching was closed with a `cancelled` flag plus `AbortController`,
+  and the interval memory leak was sealed by returning `clearInterval` from the polling effect.
+- A single targeted refactor extracted the two `useEffect` calls from `AssessmentContainer` into `useStudyLoader`
+  and `useEventPoll`, leaving the component as a pure rendering function with no async concerns.
+- As a bonus, `MiniSignalPlot` was migrated from an SVG path string to a Canvas `useEffect` draw loop,
+  and HR/SpO2 mock data was expanded to 10,001 samples, toggling or zooming at that density now completes
+  well within a single 16 ms frame budget.
+
+For more details, check the [CHANGELOG](CHANGELOG.md).
+
+## Improvements
+
+- [] Add unit and integration tests to improve application reliability
+- [] Improve UI feedback for loading state and active filters
+- [] Migrate from Recoil to Zustand, since Recoil is abandoned (Meta
+  archived the experimental Recoil repository)

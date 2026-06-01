@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.0.2] - feat: canvas rendering for `MiniSignalPlot` with HR/SpO2 10k samples
+## [1.1.0] - feat: canvas rendering for `MiniSignalPlot` with HR/SpO2 10k samples
 
 ### Changed
 
