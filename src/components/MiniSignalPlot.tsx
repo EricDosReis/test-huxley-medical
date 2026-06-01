@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { useMemo } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type MiniSignalPlotProps = {
   title: string;
@@ -11,6 +11,8 @@ type MiniSignalPlotProps = {
   timestamps?: number[];
 };
 
+const PLOT_PADDING = 24;
+
 const MiniSignalPlot = ({
   title,
   width,
@@ -19,28 +21,40 @@ const MiniSignalPlot = ({
   values,
   timestamps,
 }: MiniSignalPlotProps) => {
-  const padding = 24;
-  const innerW = Math.max(1, width - padding * 2);
-  const innerH = Math.max(1, height - padding * 2);
+  const innerW = Math.max(1, width - PLOT_PADDING * 2);
+  const innerH = Math.max(1, height - PLOT_PADDING * 2);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [labels, setLabels] = useState<{ yMin: number; yMax: number }>({
+    yMin: NaN,
+    yMax: NaN,
+  });
 
-  const { path, yMin, yMax } = useMemo(() => {
-    if (!values || values.length === 0) {
-      return { path: "", yMin: NaN, yMax: NaN };
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, innerW, innerH);
+
+    if (!values?.length) {
+      setLabels({ yMin: NaN, yMax: NaN });
+      return;
     }
 
     const n = values.length;
-    const minV = values.reduce(
+    const domainMin = values.reduce(
       (m, v) => (v < m ? v : m),
       Number.POSITIVE_INFINITY,
     );
-    const maxV = values.reduce(
+    const domainMax = values.reduce(
       (m, v) => (v > m ? v : m),
       Number.NEGATIVE_INFINITY,
     );
-    // Always scale from data min/max
-    const domainMin = minV;
-    const domainMax = maxV;
     const yRange = Math.max(1e-6, domainMax - domainMin);
+
+    setLabels({ yMin: domainMin, yMax: domainMax });
 
     const xAt = (i: number) => {
       if (timestamps && timestamps.length === n) {
@@ -53,34 +67,45 @@ const MiniSignalPlot = ({
     };
     const yAt = (v: number) => {
       const rel = (v - domainMin) / yRange;
-      // SVG y grows down; invert
+      // Canvas y grows down; invert to match chart convention
       return innerH - rel * innerH;
     };
 
-    let d = "";
-    for (let i = 0; i < n; i++) {
-      const x = xAt(i);
-      const y = yAt(values[i]);
-      d += i === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(xAt(0), yAt(values[0]));
+    for (let i = 1; i < n; i++) {
+      ctx.lineTo(xAt(i), yAt(values[i]));
     }
-    return { path: d, yMin: domainMin, yMax: domainMax };
-  }, [values, timestamps, innerW, innerH]);
+    ctx.stroke();
+  }, [values, timestamps, innerW, innerH, color]);
 
   return (
     <Box sx={{ border: "1px solid #E0E0E0", borderRadius: 1, p: 1 }}>
       <Typography sx={{ fontWeight: 600, mb: 0.5 }}>{title}</Typography>
       <Typography sx={{ fontSize: 12, color: "#666", mb: 1 }}>
-        yMin: {Number.isFinite(yMin) ? yMin.toFixed(2) : "—"} | yMax:{" "}
-        {Number.isFinite(yMax) ? yMax.toFixed(2) : "—"}
+        yMin: {Number.isFinite(labels.yMin) ? labels.yMin.toFixed(2) : "—"} |
+        yMax: {Number.isFinite(labels.yMax) ? labels.yMax.toFixed(2) : "—"}
       </Typography>
-      <svg width={width} height={height}>
-        <g transform={`translate(${padding}, ${padding})`}>
-          <rect width={innerW} height={innerH} fill="#fafafa" stroke="#eee" />
-          {path && (
-            <path d={path} stroke={color} fill="none" strokeWidth={1.5} />
-          )}
-        </g>
-      </svg>
+
+      <Box
+        sx={{
+          width,
+          height,
+          padding: `${PLOT_PADDING}px`,
+          background: "#fafafa",
+          border: "1px solid #eee",
+          boxSizing: "border-box",
+        }}
+      >
+        <canvas
+          ref={canvasRef}
+          width={innerW}
+          height={innerH}
+          style={{ display: "block" }}
+        />
+      </Box>
     </Box>
   );
 };
