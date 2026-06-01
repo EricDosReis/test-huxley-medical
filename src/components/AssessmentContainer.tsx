@@ -12,10 +12,24 @@ import {
   studyAtom,
   visibleSignalsSelector,
 } from "../store/globalStore";
+import type { SignalKey } from "../types";
 import { HRBaselineDisplay } from "./HRBaselineDisplay";
 import MiniSignalPlot from "./MiniSignalPlot";
 import SignalToggles from "./SignalToggles";
 import TimelineControls from "./TimelineControls";
+
+const STUDY_OPTIONS: { id: string; label: string }[] = [
+  { id: "demo-study-001", label: "Study 1" },
+  { id: "demo-study-002", label: "Study 2" },
+  { id: "demo-study-003", label: "Study 3" },
+];
+
+const SIGNAL_PLOTS: { key: SignalKey; title: string; color: string }[] = [
+  { key: "hr", title: "HR", color: "#1976d2" },
+  { key: "spo2", title: "SpO2", color: "#2e7d32" },
+  { key: "resp", title: "Resp", color: "#9c27b0" },
+  { key: "position", title: "Position", color: "#5d4037" },
+];
 
 const AssessmentContainer = () => {
   useStudyLoader();
@@ -45,33 +59,17 @@ const AssessmentContainer = () => {
           <Typography sx={{ fontSize: 14, fontWeight: 600 }}>
             Switch study:
           </Typography>
-          <Button
-            size="sm"
-            variant="outlined"
-            onClick={() =>
-              setStudy((prev) => ({ ...prev, studyId: "demo-study-001" }))
-            }
-          >
-            Study 1
-          </Button>
-          <Button
-            size="sm"
-            variant="outlined"
-            onClick={() =>
-              setStudy((prev) => ({ ...prev, studyId: "demo-study-002" }))
-            }
-          >
-            Study 2
-          </Button>
-          <Button
-            size="sm"
-            variant="outlined"
-            onClick={() =>
-              setStudy((prev) => ({ ...prev, studyId: "demo-study-003" }))
-            }
-          >
-            Study 3
-          </Button>
+
+          {STUDY_OPTIONS.map(({ id, label }) => (
+            <Button
+              key={id}
+              size="sm"
+              variant="outlined"
+              onClick={() => setStudy((prev) => ({ ...prev, studyId: id }))}
+            >
+              {label}
+            </Button>
+          ))}
         </Stack>
 
         {visibleSignals.hr && (
@@ -86,45 +84,18 @@ const AssessmentContainer = () => {
           Events in current study: {events.length}
         </Typography>
 
-        {visibleSignals.hr && (
-          <MiniSignalPlot
-            title="HR"
-            width={chartWidth}
-            height={chartHeight}
-            values={visibleSignals.hr.values}
-            timestamps={visibleSignals.hr.timestamps}
-            color="#1976d2"
-          />
-        )}
-        {visibleSignals.spo2 && (
-          <MiniSignalPlot
-            title="SpO2"
-            width={chartWidth}
-            height={chartHeight}
-            values={visibleSignals.spo2.values}
-            timestamps={visibleSignals.spo2.timestamps}
-            color="#2e7d32"
-          />
-        )}
-        {visibleSignals.resp && (
-          <MiniSignalPlot
-            title="Resp"
-            width={chartWidth}
-            height={chartHeight}
-            values={visibleSignals.resp.values}
-            timestamps={visibleSignals.resp.timestamps}
-            color="#9c27b0"
-          />
-        )}
-        {visibleSignals.position && (
-          <MiniSignalPlot
-            title="Position"
-            width={chartWidth}
-            height={chartHeight}
-            values={visibleSignals.position.values}
-            timestamps={visibleSignals.position.timestamps}
-            color="#5d4037"
-          />
+        {SIGNAL_PLOTS.map(({ key, title, color }) =>
+          visibleSignals[key] ? (
+            <MiniSignalPlot
+              key={key}
+              title={title}
+              width={chartWidth}
+              height={chartHeight}
+              values={visibleSignals[key].values}
+              timestamps={visibleSignals[key].timestamps}
+              color={color}
+            />
+          ) : null,
         )}
       </Stack>
     </Box>
