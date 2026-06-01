@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2] - feat: canvas rendering for `MiniSignalPlot` with HR/SpO2 10k samples
+
+### Changed
+
+- `MiniSignalPlot` replaces SVG `<path>` renderer with HTML Canvas. Drawing is handled via the 2D context API in a `useEffect`, so memory and paint cost stay flat regardless of sample count. `yMin`/`yMax` labels are now tracked in local state. See [ADR 0001](docs/adr/0001-mini-signal-plot-rendering-strategy.md) for the rationale and alternatives considered.
+- `mockData` bumpes HR and SpO2 mock signals from 601 to 10,001 samples, with timestamps distributed proportionally across the 600 s study window.
+
 ## [1.0.1] - refactor: decompose `AssessmentContainer` into focused hooks and components
 
 ### Added
