@@ -4,6 +4,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Typography from "@mui/material/Typography";
 import { useRecoilState, useRecoilValue } from "recoil";
 
+import { SIGNAL_OPTIONS } from "../constants";
 import { signalsAtom, visibilityAtom } from "../store/globalStore";
 import type { SignalKey } from "../types";
 
@@ -31,42 +32,18 @@ const SignalToggles = () => {
         Visible signals:
       </Typography>
 
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={visibility.has("hr")}
-            onChange={() => handleToggle("hr")}
-          />
-        }
-        label="HR"
-      />
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={visibility.has("spo2")}
-            onChange={() => handleToggle("spo2")}
-          />
-        }
-        label="SpO2"
-      />
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={visibility.has("resp")}
-            onChange={() => handleToggle("resp")}
-          />
-        }
-        label="Resp"
-      />
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={visibility.has("position")}
-            onChange={() => handleToggle("position")}
-          />
-        }
-        label="Position"
-      />
+      {SIGNAL_OPTIONS.map(({ key, label }) => (
+        <FormControlLabel
+          key={key}
+          control={
+            <Checkbox
+              checked={visibility.has(key)}
+              onChange={() => handleToggle(key)}
+            />
+          }
+          label={label}
+        />
+      ))}
     </Stack>
   );
 };

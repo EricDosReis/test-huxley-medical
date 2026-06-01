@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1] - refactor: decompose `AssessmentContainer` into focused hooks and components
+
+### Added
+
+- `useStudyLoader` hook in `src/hooks/useStudyLoader.ts` encapsulates the `fetchStudy` call that was previously inline in `AssessmentContainer`
+- `useEventPoll` hook in `src/hooks/useEventPoll.ts` encapsulates the `fetchEvents` call that was previously inline in `AssessmentContainer`
+- `HRBaselineDisplay` component in `src/components/HRBaselineDisplay.tsx` accepts a `SignalSeries` prop and renders the HR baseline info, replacing an anonymous inline `Box` block in `AssessmentContainer`
+- `src/constants.ts` with three typed constant arrays (`SIGNAL_OPTIONS`, `SIGNAL_PLOTS`, and `STUDY_OPTIONS`), each typed via `satisfies` against the relevant domain types
+
+### Changed
+
+- **`AssessmentContainer` simplification:** side-effect logic replaced with `useStudyLoader()` and `useEventPoll()` hook calls; the hardcoded per-signal plot blocks and per-study button blocks replaced with `.map()` over `SIGNAL_PLOTS` and `STUDY_OPTIONS` respectively; the inline HR baseline `Box` replaced with `<HRBaselineDisplay />`
+- **`SignalToggles` simplification:** four hardcoded `FormControlLabel`/`Checkbox` blocks replaced with a single `.map()` over `SIGNAL_OPTIONS`
+
 ## [1.0.0] - fix: study viewer reliability and store refactor
 
 ### Added
