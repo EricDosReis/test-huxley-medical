@@ -12,6 +12,7 @@ import {
   studyAtom,
   visibleSignalsSelector,
 } from "../store/globalStore";
+import { HRBaselineDisplay } from "./HRBaselineDisplay";
 import MiniSignalPlot from "./MiniSignalPlot";
 import SignalToggles from "./SignalToggles";
 import TimelineControls from "./TimelineControls";
@@ -74,30 +75,7 @@ const AssessmentContainer = () => {
         </Stack>
 
         {visibleSignals.hr && (
-          <Box
-            sx={{
-              p: 1,
-              width: "200px",
-              backgroundColor:
-                visibleSignals.hr.values[0] === 60
-                  ? "#e3f2fd"
-                  : visibleSignals.hr.values[0] === 70
-                  ? "#fff3e0"
-                  : "#fce4ec",
-              border: "2px solid",
-              borderColor:
-                visibleSignals.hr.values[0] === 60
-                  ? "#1976d2"
-                  : visibleSignals.hr.values[0] === 70
-                  ? "#f57c00"
-                  : "#c2185b",
-              borderRadius: 1,
-            }}
-          >
-            <Typography sx={{ fontSize: 13, fontWeight: 600 }}>
-              HR baseline is {visibleSignals.hr.values[0]} bpm
-            </Typography>
-          </Box>
+          <HRBaselineDisplay signalSeries={visibleSignals.hr} />
         )}
 
         <SignalToggles />
