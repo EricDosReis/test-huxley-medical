@@ -1,24 +1,33 @@
 import { AssessmentStudyResponse } from "./types";
 
+const HR_SAMPLES = 10001;
+const SPO2_SAMPLES = 10001;
+const DURATION = 600;
+
+const hrTimestamps = Array.from(
+  { length: HR_SAMPLES },
+  (_, i) => (i / (HR_SAMPLES - 1)) * DURATION,
+);
+const spo2Timestamps = Array.from(
+  { length: SPO2_SAMPLES },
+  (_, i) => (i / (SPO2_SAMPLES - 1)) * DURATION,
+);
+
 export const mockStudy: AssessmentStudyResponse = {
   metadata: {
     study_id: "demo-study-001",
     study_start: 0,
-    study_end: 600, // seconds
+    study_end: DURATION,
   },
   signals: {
     hr: {
-      timestamps: Array.from({ length: 601 }, (_, i) => i),
-      values: Array.from(
-        { length: 601 },
-        (_, i) => 60 + Math.round(8 * Math.sin(i / 12)),
-      ),
+      timestamps: hrTimestamps,
+      values: hrTimestamps.map((ts) => 60 + Math.round(8 * Math.sin(ts / 12))),
     },
     spo2: {
-      timestamps: Array.from({ length: 601 }, (_, i) => i),
-      values: Array.from(
-        { length: 601 },
-        (_, i) => 94 + Math.round(3 * Math.cos(i / 20)),
+      timestamps: spo2Timestamps,
+      values: spo2Timestamps.map(
+        (ts) => 94 + Math.round(3 * Math.cos(ts / 20)),
       ),
     },
     resp: {
