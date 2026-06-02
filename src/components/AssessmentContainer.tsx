@@ -13,6 +13,7 @@ import {
   studyAtom,
   visibleSignalsSelector,
 } from "../store/globalStore";
+import { getSelectedVariant } from "../utils/get-selected-variant";
 import { HRBaselineDisplay } from "./HRBaselineDisplay";
 import MiniSignalPlot from "./MiniSignalPlot";
 import SignalToggles from "./SignalToggles";
@@ -51,7 +52,7 @@ const AssessmentContainer = () => {
             <Button
               key={id}
               size="sm"
-              variant="outlined"
+              variant={getSelectedVariant(studyId === id)}
               onClick={() => setStudy((prev) => ({ ...prev, studyId: id }))}
             >
               {label}
