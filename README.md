@@ -83,6 +83,6 @@ For more details, check the [CHANGELOG](CHANGELOG.md).
 ## Improvements
 
 - [] Add unit and integration tests to improve application reliability
-- [] Improve UI feedback for loading state and active filters
+- [x] Improve UI feedback for loading state and active filters
 - [] Migrate from Recoil to Zustand, since Recoil is abandoned (Meta
   archived the experimental Recoil repository)

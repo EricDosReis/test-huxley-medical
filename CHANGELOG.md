@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - feat: improve UI feedback in study viewer
+
+### Added
+
+- **Skeleton loading states:** `AssessmentContainer` renders four `MUI Skeleton` placeholders when `loading` is `true`. Each skeleton mirrors the `MiniSignalPlot` layout (title bar, label row, and canvas area), so the UI retains its shape during data fetch rather than showing blank canvases.
+- **Active button selection indicator:** `getSelectedVariant` helper returns `"solid"` for the currently active study or zoom window button and `"outlined"` for all others, replacing the previously static `"outlined"` variant on all buttons.
+
 ## [1.1.0] - feat: canvas rendering for `MiniSignalPlot` with HR/SpO2 10k samples
 
 ### Changed
