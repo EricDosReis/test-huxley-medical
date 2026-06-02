@@ -13,8 +13,10 @@ import {
   studyAtom,
   visibleSignalsSelector,
 } from "../store/globalStore";
+import { getSelectedVariant } from "../utils/get-selected-variant";
 import { HRBaselineDisplay } from "./HRBaselineDisplay";
 import MiniSignalPlot from "./MiniSignalPlot";
+import MiniSignalPlotSkeleton from "./MiniSignalPlotSkeleton";
 import SignalToggles from "./SignalToggles";
 import TimelineControls from "./TimelineControls";
 
@@ -51,7 +53,7 @@ const AssessmentContainer = () => {
             <Button
               key={id}
               size="sm"
-              variant="outlined"
+              variant={getSelectedVariant(studyId === id)}
               onClick={() => setStudy((prev) => ({ ...prev, studyId: id }))}
             >
               {label}
@@ -71,19 +73,27 @@ const AssessmentContainer = () => {
           Events in current study: {events.length}
         </Typography>
 
-        {SIGNAL_PLOTS.map(({ key, title, color }) =>
-          visibleSignals[key] ? (
-            <MiniSignalPlot
-              key={key}
-              title={title}
-              width={chartWidth}
-              height={chartHeight}
-              values={visibleSignals[key].values}
-              timestamps={visibleSignals[key].timestamps}
-              color={color}
-            />
-          ) : null,
-        )}
+        {loading
+          ? SIGNAL_PLOTS.map(({ key }) => (
+              <MiniSignalPlotSkeleton
+                key={key}
+                width={chartWidth}
+                height={chartHeight}
+              />
+            ))
+          : SIGNAL_PLOTS.map(({ key, title, color }) =>
+              visibleSignals[key] ? (
+                <MiniSignalPlot
+                  key={key}
+                  title={title}
+                  width={chartWidth}
+                  height={chartHeight}
+                  values={visibleSignals[key].values}
+                  timestamps={visibleSignals[key].timestamps}
+                  color={color}
+                />
+              ) : null,
+            )}
       </Stack>
     </Box>
   );

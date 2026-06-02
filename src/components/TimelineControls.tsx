@@ -4,6 +4,7 @@ import Typography from "@mui/material/Typography";
 import { useRecoilState } from "recoil";
 
 import { windowAtom } from "../store/globalStore";
+import { getSelectedVariant } from "../utils/get-selected-variant";
 
 const TimelineControls = () => {
   const [{ startSec, endSec }, setWindow] = useRecoilState(windowAtom);
@@ -18,13 +19,25 @@ const TimelineControls = () => {
         Zoom window:
       </Typography>
 
-      <Button size="sm" variant="outlined" onClick={() => applyWindow(30)}>
+      <Button
+        size="sm"
+        variant={getSelectedVariant(endSec === 30)}
+        onClick={() => applyWindow(30)}
+      >
         30s
       </Button>
-      <Button size="sm" variant="outlined" onClick={() => applyWindow(120)}>
+      <Button
+        size="sm"
+        variant={getSelectedVariant(endSec === 120)}
+        onClick={() => applyWindow(120)}
+      >
         2 min
       </Button>
-      <Button size="sm" variant="outlined" onClick={() => applyWindow(600)}>
+      <Button
+        size="sm"
+        variant={getSelectedVariant(endSec === 600)}
+        onClick={() => applyWindow(600)}
+      >
         10 min
       </Button>
 
